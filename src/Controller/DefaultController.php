@@ -18,12 +18,6 @@ class DefaultController extends AbstractController
         /* @var Weather $weather */
         $weather = $em->getRepository(Weather::class)->findBy([], ['id' => 'DESC'], 1, 0)[0];
 
-        dump($weather);
-        dump($weather->getTodayInformations());
-
-        foreach ($weather->getForecastInformations() as $forecastInformation) {
-            dump($forecastInformation);
-        }
-        die;
+        return $this->render('default/index.html.twig', []);
     }
 }
