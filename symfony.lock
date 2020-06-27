@@ -97,7 +97,7 @@
         "version": "2.2.3"
     },
     "php": {
-        "version": "7.2"
+        "version": "7.3"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -113,6 +113,18 @@
     },
     "ralouphie/getallheaders": {
         "version": "3.0.3"
+    },
+    "symfony/apache-pack": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "71599f5b0fdeeeec0fb90e9b17c85e6f5e1350c1"
+        },
+        "files": [
+            "public/.htaccess"
+        ]
     },
     "symfony/cache": {
         "version": "v4.4.10"
