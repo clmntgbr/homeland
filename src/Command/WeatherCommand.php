@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Util\Logger;
 use App\Entity\Weather\Alert;
 use App\Entity\Weather\Information;
 use App\Entity\Weather\Weather;
@@ -29,6 +30,9 @@ class WeatherCommand extends Command
     /** @var EntityManagerInterface */
     private $em;
 
+    /** @var Logger */
+    private $logger;
+
     /** @var string */
     private $darkSkyForecastURL;
 
@@ -41,12 +45,13 @@ class WeatherCommand extends Command
     /** @var string */
     private $darkSkyLongitude;
 
-    public function __construct(Client $client, DotEnv $dotEnv, EntityManagerInterface $em)
+    public function __construct(Client $client, DotEnv $dotEnv, EntityManagerInterface $em, Logger $logger)
     {
         parent::__construct(self::$defaultName);
         $this->client = $client;
         $this->dotEnv = $dotEnv;
         $this->em = $em;
+        $this->logger = $logger;
         $this->darkSkyForecastURL = $this->dotEnv->load('DARK_SKY_FORECAST_URL');
         $this->darkSkyApiKey = $this->dotEnv->load('DARK_SKY_API_KEY');
         $this->darkSkyLatitude = $this->dotEnv->load('DARK_SKY_LATITUDE');
@@ -60,6 +65,8 @@ class WeatherCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->logger->start();
+
         $response = $this->client->request('GET', sprintf($this->darkSkyForecastURL, $this->darkSkyApiKey, $this->darkSkyLatitude, $this->darkSkyLongitude));
 
         if (200 != $response->getStatusCode()) {
@@ -111,30 +118,29 @@ class WeatherCommand extends Command
 
         foreach ($forecast as $daily) {
             if (Weather::unixToDateTime($daily['time'])->format('d') == $today) {
-                $this->setTodayInformations($weather, $daily);
+                $this->setInformations($weather->getTodayInformations(), $weather, $daily);
                 continue;
             }
 
             $information = $this->createDailyInformations($weather, $daily);
-            $this->setDailyInformations($information, $daily);
-
+            $this->setInformations($information, $weather, $daily);
             $information->setDate(Weather::unixToDateTime($daily['time']));
             $information->setDateUNIX($daily['time']);
-
             $this->em->persist($information);
-            $this->em->flush();
-
         }
 
         $this->em->persist($weather);
         $this->em->flush();
 
+        $this->logger->end(self::$defaultName, 'command', []);
+
         return 0;
     }
 
-    private function setDailyInformations(Information $information, array $daily)
+    private function setInformations(Information $information, Weather $weather, array $daily)
     {
-        $information->setTodayInformations(
+        $information->setInformations(
+            $weather,
             $daily['summary'] ?? null,
             $daily['icon'] ?? null,
             $daily['windGustTime'] ?? null,
@@ -182,37 +188,6 @@ class WeatherCommand extends Command
             $daily['uvIndex'] ?? null,
             $daily['visibility'] ?? null,
             $daily['ozone'] ?? null
-        );
-    }
-
-    private function setTodayInformations(Weather $weather, array $daily)
-    {
-        $weather->getTodayInformation()->setTodayInformations(
-            $daily['summary'] ?? null,
-            $daily['icon'] ?? null,
-            $daily['windGustTime'] ?? null,
-            $daily['uvIndexTime'] ?? null,
-            $daily['sunriseTime'] ?? null,
-            $daily['sunsetTime'] ?? null,
-            $daily['moonPhase'] ?? null,
-            $daily['precipIntensityMax'] ?? null,
-            $daily['precipIntensityMaxTime'] ?? null,
-            $daily['temperatureHigh'] ?? null,
-            $daily['temperatureHighTime'] ?? null,
-            $daily['temperatureLow'] ?? null,
-            $daily['temperatureLowTime'] ?? null,
-            $daily['apparentTemperatureHigh'] ?? null,
-            $daily['apparentTemperatureHighTime'] ?? null,
-            $daily['apparentTemperatureLow'] ?? null,
-            $daily['apparentTemperatureLowTime'] ?? null,
-            $daily['temperatureMin'] ?? null,
-            $daily['temperatureMinTime'] ?? null,
-            $daily['temperatureMax'] ?? null,
-            $daily['temperatureMaxTime'] ?? null,
-            $daily['apparentTemperatureMin'] ?? null,
-            $daily['apparentTemperatureMinTime'] ?? null,
-            $daily['apparentTemperatureMax'] ?? null,
-            $daily['apparentTemperatureMaxTime'] ?? null
         );
     }
 }

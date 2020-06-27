@@ -57,19 +57,11 @@ class Weather
     private $timezone;
 
     /**
-     * @var Information
-     *
-     * @ORM\OneToOne(targetEntity="App\Entity\Weather\Information", cascade={"persist", "remove", "remove"}, fetch="EAGER")
-     * @ORM\JoinColumn(name="today_information_id", referencedColumnName="id")
-     */
-    private $todayInformation;
-
-    /**
      * @var Information[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Weather\Information", mappedBy="weather", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="App\Entity\Weather\Information", mappedBy="weather", cascade={"persist", "remove"}, fetch="EAGER")
      */
-    private $forecastInformations;
+    private $informations;
 
     /**
      * @var Alert[]
@@ -86,15 +78,34 @@ class Weather
         $this->latitude = $latitude;
         $this->longitude = $longitude;
         $this->timezone = $timezone;
-        $this->todayInformation = new Information($this, $precipIntensity, $precipProbability, $precipType, $temperature, $apparentTemperature, $dewPoint, $humidity, $pressure, $windSpeed, $windGust, $windBearing, $cloudCover, $uvIndex, $visibility, $ozone);
-
-        $this->forecastInformations = new ArrayCollection();
+        $this->informations = new ArrayCollection();
         $this->alerts = new ArrayCollection();
+
+        $this->informations->add(new Information($this, $precipIntensity, $precipProbability, $precipType, $temperature, $apparentTemperature, $dewPoint, $humidity, $pressure, $windSpeed, $windGust, $windBearing, $cloudCover, $uvIndex, $visibility, $ozone));
     }
 
     public function __toString()
     {
         return (string)$this->id;
+    }
+
+    /**
+     * @return Information|null
+     */
+    public function getTodayInformations()
+    {
+        return $this->informations->first();
+    }
+
+    public function getForecastInformations()
+    {
+        /** @var Information $information */
+        return $this->informations->filter(function ($information) {
+            if (is_null($information->getDate()) && is_null($information->getDateUnix())) {
+                return false;
+            }
+            return true;
+        });
     }
 
     static function unixToDateTime($unix): ?DateTimeImmutable
@@ -173,49 +184,6 @@ class Weather
         return $this;
     }
 
-    public function getTodayInformation(): ?Information
-    {
-        return $this->todayInformation;
-    }
-
-    public function setTodayInformation(?Information $todayInformation): self
-    {
-        $this->todayInformation = $todayInformation;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Information[]
-     */
-    public function getForecastInformations(): Collection
-    {
-        return $this->forecastInformations;
-    }
-
-    public function addForecastInformation(Information $forecastInformation): self
-    {
-        if (!$this->forecastInformations->contains($forecastInformation)) {
-            $this->forecastInformations[] = $forecastInformation;
-            $forecastInformation->setWeather($this);
-        }
-
-        return $this;
-    }
-
-    public function removeForecastInformation(Information $forecastInformation): self
-    {
-        if ($this->forecastInformations->contains($forecastInformation)) {
-            $this->forecastInformations->removeElement($forecastInformation);
-            // set the owning side to null (unless already changed)
-            if ($forecastInformation->getWeather() === $this) {
-                $forecastInformation->setWeather(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection|Alert[]
      */
@@ -241,6 +209,29 @@ class Weather
             // set the owning side to null (unless already changed)
             if ($alert->getWeather() === $this) {
                 $alert->setWeather(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addInformation(Information $information): self
+    {
+        if (!$this->informations->contains($information)) {
+            $this->informations[] = $information;
+            $information->setWeather($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInformation(Information $information): self
+    {
+        if ($this->informations->contains($information)) {
+            $this->informations->removeElement($information);
+            // set the owning side to null (unless already changed)
+            if ($information->getWeather() === $this) {
+                $information->setWeather(null);
             }
         }
 

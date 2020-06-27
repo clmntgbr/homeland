@@ -403,10 +403,9 @@ class Information
     private $apparentTemperatureMaxTimeUNIX;
 
     /**
-     * @var Weather|null
+     * @var Weather
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Weather\Weather", inversedBy="forecastInformations", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * @ORM\JoinColumn(name="weather_id", referencedColumnName="id", nullable=true)
      */
     public $weather;
 
@@ -430,8 +429,9 @@ class Information
         $this->ozone = $ozone;
     }
 
-    public function setTodayInformations(?string $summary, ?string $icon, ?int $windGustTimeUNIX, ?int $uvIndexTimeUNIX, ?int $sunriseTimeUNIX, ?int $sunsetTimeUNIX, ?float $moonPhase, ?float $precipIntensityMax, ?int $precipIntensityMaxTimeUNIX, ?float $temperatureHigh, ?int $temperatureHighTimeUNIX, ?float $temperatureLow, ?int $temperatureLowTimeUNIX, ?float $apparentTemperatureHigh, ?int $apparentTemperatureHighTimeUNIX, ?float $apparentTemperatureLow, ?int $apparentTemperatureLowTimeUNIX, ?float $temperatureMin, ?int $temperatureMinTimeUNIX, ?float $temperatureMax, ?int $temperatureMaxTimeUNIX, ?float $apparentTemperatureMin, ?int $apparentTemperatureMinTimeUNIX, ?float $apparentTemperatureMax, ?int $apparentTemperatureMaxTimeUNIX)
+    public function setInformations(Weather $weather, ?string $summary, ?string $icon, ?int $windGustTimeUNIX, ?int $uvIndexTimeUNIX, ?int $sunriseTimeUNIX, ?int $sunsetTimeUNIX, ?float $moonPhase, ?float $precipIntensityMax, ?int $precipIntensityMaxTimeUNIX, ?float $temperatureHigh, ?int $temperatureHighTimeUNIX, ?float $temperatureLow, ?int $temperatureLowTimeUNIX, ?float $apparentTemperatureHigh, ?int $apparentTemperatureHighTimeUNIX, ?float $apparentTemperatureLow, ?int $apparentTemperatureLowTimeUNIX, ?float $temperatureMin, ?int $temperatureMinTimeUNIX, ?float $temperatureMax, ?int $temperatureMaxTimeUNIX, ?float $apparentTemperatureMin, ?int $apparentTemperatureMinTimeUNIX, ?float $apparentTemperatureMax, ?int $apparentTemperatureMaxTimeUNIX)
     {
+        $this->weather = $weather;
         $this->summary = $summary;
         $this->icon = $icon;
         $this->windGustTimeUNIX = $windGustTimeUNIX;
@@ -470,12 +470,6 @@ class Information
         $this->apparentTemperatureMax = $apparentTemperatureMax;
         $this->apparentTemperatureMaxTimeUNIX = $apparentTemperatureMaxTimeUNIX;
         $this->apparentTemperatureMaxTime = Weather::unixToDateTime($apparentTemperatureMaxTimeUNIX);
-    }
-
-    public function setDailyInformations(int $dateUNIX, ?string $summary, ?string $icon, ?int $windGustTimeUNIX, ?int $uvIndexTimeUNIX, ?int $sunriseTimeUNIX, ?int $sunsetTimeUNIX, ?float $moonPhase, ?float $precipIntensityMax, ?int $precipIntensityMaxTimeUNIX, ?float $temperatureHigh, ?int $temperatureHighTimeUNIX, ?float $temperatureLow, ?int $temperatureLowTimeUNIX, ?float $apparentTemperatureHigh, ?int $apparentTemperatureHighTimeUNIX, ?float $apparentTemperatureLow, ?int $apparentTemperatureLowTimeUNIX, ?float $temperatureMin, ?int $temperatureMinTimeUNIX, ?float $temperatureMax, ?int $temperatureMaxTimeUNIX, ?float $apparentTemperatureMin, ?int $apparentTemperatureMinTimeUNIX, ?float $apparentTemperatureMax, ?int $apparentTemperatureMaxTimeUNIX)
-    {
-        $this->date = Weather::unixToDateTime($dateUNIX);
-        $this->setTodayInformations($summary, $icon, $windGustTimeUNIX, $uvIndexTimeUNIX, $sunriseTimeUNIX, $sunsetTimeUNIX, $moonPhase, $precipIntensityMax, $precipIntensityMaxTimeUNIX, $temperatureHigh, $temperatureHighTimeUNIX, $temperatureLow, $temperatureLowTimeUNIX, $apparentTemperatureHigh, $apparentTemperatureHighTimeUNIX, $apparentTemperatureLow, $apparentTemperatureLowTimeUNIX, $temperatureMin, $temperatureMinTimeUNIX, $temperatureMax, $temperatureMaxTimeUNIX, $apparentTemperatureMin, $apparentTemperatureMinTimeUNIX, $apparentTemperatureMax, $apparentTemperatureMaxTimeUNIX);
     }
 
     public function __toString()
