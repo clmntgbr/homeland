@@ -15,8 +15,7 @@ class DefaultController extends AbstractController
     public function default(EntityManagerInterface $em)
     {
         /* @var Weather $weather */
-        $weather = $em->getRepository(Weather::class)->findBy([], ['id' => 'DESC'], 1, 0)[0];
-
+        $weather = $em->getRepository(Weather::class)->findBy([], ['id' => 'DESC'], 1, 0);
         return $this->render('default/index.html.twig', []);
     }
 
@@ -26,8 +25,7 @@ class DefaultController extends AbstractController
     public function index(EntityManagerInterface $em)
     {
         /* @var Weather $weather */
-        $weather = $em->getRepository(Weather::class)->findBy([], ['id' => 'DESC'], 1, 0)[0];
-
+        $weather = $em->getRepository(Weather::class)->findBy([], ['id' => 'DESC'], 1, 0);
         return $this->render('default/index.html.twig', []);
     }
 }
