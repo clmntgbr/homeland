@@ -22,7 +22,18 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
     GuzzleHttp\Client:
+
+    admin.weather.weather:
+        class: App\Admin\Weather\WeatherAdmin
+        arguments: [~, App\Entity\Weather\Weather, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Weather, label: Weather }
+        public: true
+
+    admin.logger:
+        class: App\Admin\LoggerAdmin
+        arguments: [~, App\Entity\Logger, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Default, label: Logger }
+        public: true

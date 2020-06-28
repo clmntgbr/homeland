@@ -405,7 +405,7 @@ class Information
     /**
      * @var Weather
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Weather\Weather", inversedBy="forecastInformations", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Weather\Weather", inversedBy="informations", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      */
     public $weather;
 
